@@ -64,9 +64,7 @@ class Publisher:
 		self.events = []
 
 		if debug:
-			log.info('Created a new suricata publisher instance')
-			log.info('DETAILS')
-			log.info('user = {0} ,socket = {1} ,redis channel = {2}'.format(self.user, self.sock, self.channel))
+			log.info('Created a new suricata publisher instance -> user = {0} ,socket = {1} ,redis channel = {2}'.format(self.user, self.sock, self.channel))
 
 		pwnam = pwd.getpwnam(self.user)
 		self.uid = pwnam.pw_uid
@@ -94,11 +92,12 @@ class Publisher:
 			return
 		if self.debug:
 			log.warning('New Data from socket:')
-			log.info("{0}:{1} , signature id = {1}".format(
+			log.info("{0}:{1} , signature id = {2}".format(
 				data_json["src_ip"],
 				data_json["src_port"],
 				data_json["alert"]["signature_id"]
 			))
+			log.info("Description: {0}".format(data_json["alert"]["signature"]))
 		
 		message = {
 			"version" 	: self.VERSION,
@@ -107,8 +106,23 @@ class Publisher:
 			"host"		: socket.gethostname(),
 			"event"		: data_json
 		}
-		self.events.append(message)
+		self.events.append({
+			"event_type": "subscriber",
+			"data": message
+		})
 		self.redis_client.publish(self.channel, json.dumps(message))
+		data_copy = {k: v for k, v in data_json.items()}
+		if self.logstash:
+			if data_copy["alert"] is not None:
+				for k, v in data_copy["alert"].items():
+					data_copy[k] = v
+				del(data_copy["alert"])
+				self.events.append({
+					"event_type": "logstash",
+					"data": data_copy
+				})
+			self.redis_client.publish("logstash-{0}".format(self.channel), 
+									json.dumps(data_copy))
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Instanciate the publisher of the system')
