@@ -21,7 +21,7 @@ def wait_and_send(self, sock):
 			'dest_port' : 53,
 			'flow_id' : '35430576640',
 			'vlan' : '',
-			'src_ip' : '',
+			'src_ip' : '128.123.12.39',
 			'alert' : {
 				'signature_id' : 2013357,
 				'rev' : 1,
@@ -76,15 +76,16 @@ class TestPublisher(unittest.TestCase):
 			user='plkost', 
 			redis='redis://:6379', 
 			channel='suricata', 
-			logstash=False, 
+			logstash=True, 
 			sock=sock.getsockname()
 		)
 		self.assertIsInstance(pub, Publisher)
 		pub.start()
 		while len(pub.events) < 1:
 			pass
-		self.assertEqual(len(pub.events), 1)
-		self.assertEqual(pub.events[0]['event']['alert']['signature_id'], 2013357)
+		self.assertEqual(len(pub.events), 2)
+		self.assertEqual(pub.events[0]["data"]["event"]["alert"]["signature_id"], 2013357)		
+		self.assertEqual(pub.events[1]["data"]["signature_id"], 2013357)
 
 if __name__ == "__main__":
 	unittest.main()
