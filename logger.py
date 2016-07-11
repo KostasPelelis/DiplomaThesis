@@ -17,7 +17,7 @@ LOG_COLORS = {
     'WARNING': Style.YELLOW,
     'INFO': Style.WHITE,
     'DEBUG': Style.BLUE,
-    'CRITICAL': Style.YELLOW,
+    'CRITICAL': Style.RED,
     'ERROR': Style.RED
 }
 
