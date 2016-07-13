@@ -5,20 +5,22 @@ import sys
 log = logging.getLogger('netmode-noc')
 
 class Style:
-	RED 	= '\033[31m'
-	YELLOW 	= '\033[33m'
-	WHITE 	= '\033[97m'
-	GREEN 	= '\033[32m'
-	BLUE	= '\033[34m'
-	ESCAPE 	= '\033[0m'
+    RED 	= '\033[31m'
+    YELLOW 	= '\033[33m'
+    WHITE 	= '\033[97m'
+    GREEN 	= '\033[32m'
+    BLUE	= '\033[34m'
+    ESCAPE 	= '\033[0m'
+    UNDERLINE = '\033[4m'
+    BOLD = '\033[1m'
 
 
 LOG_COLORS = {
-    'WARNING': Style.YELLOW,
-    'INFO': Style.WHITE,
     'DEBUG': Style.BLUE,
+    'INFO': Style.WHITE,
+    'WARNING': Style.YELLOW,
+    'ERROR': Style.RED,
     'CRITICAL': Style.RED,
-    'ERROR': Style.RED
 }
 
 

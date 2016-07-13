@@ -8,6 +8,9 @@ import asyncore
 import json
 import datetime
 import logging
+import signal
+from logger import Style
+
 
 log = logging.getLogger('noc-netmode')
 
@@ -35,6 +38,7 @@ class AsyncSockListener(asyncore.dispatcher):
 			data = self.recv(4096)
 			self.master.handle_event(data)
 		except socket.error:
+			socket.close()
 			raise
 
 class Publisher:
@@ -66,13 +70,15 @@ class Publisher:
 		if debug:
 			log.info('Created a new suricata publisher instance -> user = {0} ,socket = {1} ,redis channel = {2}'.format(self.user, self.sock, self.channel))
 
-		pwnam = pwd.getpwnam(self.user)
-		self.uid = pwnam.pw_uid
-		self.gid = pwnam.pw_gid
+		self.uid, self.gid = pwd.getpwnam(self.user)[2:4]
 
 		if self.uid and self.gid:
-			os.setgid(self.gid)
-			os.setuid(self.uid)
+			try:
+				os.setgid(self.gid)
+				os.setuid(self.uid)
+			except Exception as e:
+				print(e)
+				raise
 		else:
 			log.error("Cannot run proccess as user {0}".format(self.user))
 			sys.exit(1)
@@ -91,13 +97,23 @@ class Publisher:
 		except Exception as e:
 			return
 		if self.debug:
-			log.warning('New Data from socket:')
-			log.info("{0}:{1} , signature id = {2}".format(
+			log.warning('■  {0}New Data from socket{1}'.format(Style.BOLD, Style.ESCAPE))
+			log.info("├─ {0}Source{1}: {2}:{3}".format(
+				Style.UNDERLINE,
+				Style.ESCAPE,
 				data_json["src_ip"],
-				data_json["src_port"],
+				data_json["src_port"]
+			))
+			log.info("├─ {0}Signature ID{1}: {2}".format(
+				Style.UNDERLINE,
+				Style.ESCAPE,
 				data_json["alert"]["signature_id"]
 			))
-			log.info("Description: {0}".format(data_json["alert"]["signature"]))
+			log.info("└─ {0}Description{1}: {2}".format(
+				Style.UNDERLINE,
+				Style.ESCAPE,
+				data_json["alert"]["signature"]
+			))
 		
 		message = {
 			"version" 	: self.VERSION,
