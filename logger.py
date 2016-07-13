@@ -51,20 +51,14 @@ def init_logging(name='noc-netmode', logfile='main.log'):
     log_filter = LogFilter(logging.WARNING)
 
     file_logger = logging.FileHandler(logfile)
-    file_logger.setFormatter(logging.Formatter(fmt='[%(asctime)s] [%(levelname)s] %(message)s'))
+    file_logger.setFormatter(logging.Formatter(fmt='[%(asctime)s] [%(module)-10s] [%(levelname)s] %(message)s'))
     file_logger.setLevel(logging.DEBUG)
-
-    logger_stdout = logging.StreamHandler(sys.stdout)
-    logger_stdout.setFormatter(colored_formatter)
-    logger_stdout.addFilter(log_filter)
-    logger_stdout.setLevel(logging.INFO)
 
     logger_stderr = logging.StreamHandler(sys.stderr)
     logger_stderr.setFormatter(colored_formatter)
     logger_stderr.setLevel(logging.WARNING)
 
 
-    logging.getLogger().addHandler(logger_stdout)
     logging.getLogger().addHandler(logger_stderr)
     logging.getLogger().addHandler(file_logger)
 
