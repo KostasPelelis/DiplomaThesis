@@ -8,11 +8,14 @@ import time
 import redis
 import collections
 import logging
-
+import signal
 from logger import Style
 log = logging.getLogger('noc-netmode')
 
 blockedIPs = collections.OrderedDict()
+
+def signal_handler(signal, frame):
+    sys.exit(0)
 
 class TimerThread(threading.Thread):
 
@@ -24,7 +27,8 @@ class TimerThread(threading.Thread):
 
     def run(self):
         while True:
-            # The list conversion is needed because we are deleting a key-value pair during iterating the dictionary
+            # The list conversion is needed because we are deleting a key-value pair
+            # during iterating the dictionary
             for (key,val) in list(blockedIPs.items()):
                 blockedIPs[key] -= self.tick
                 if (blockedIPs[key] <= 0):
@@ -104,7 +108,7 @@ def printflush(*args, file=sys.stdout):
     print (*args, flush=True, file=file)
 
 def setupenvironment(args):    
-    
+    signal.signal(signal.SIGINT, signal_handler)    
     if args['user'] is not None:
         try:
             uid, gid = getpwnam(args['user'])[2:4]
@@ -150,7 +154,10 @@ setupenvironment(args)
 r = redis.StrictRedis(host=args['redis_host'], port=args['redis_port'], db=0)
 timerThread = TimerThread(args['debug'], args['tick'], args['dest'])
 pubsubThread = SubThread(r, args)
+timerThread.daemon = True
 timerThread.start()
+pubsubThread.daemon = True
 pubsubThread.start()
-timerThread.join()
-pubsubThread.join()
+
+while threading.active_count() > 0:
+    time.sleep(0.3)
