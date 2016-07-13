@@ -10,33 +10,30 @@ import datetime
 import logging
 import signal
 from logger import Style
+import threading
+import signal
+
+def signal_handler(signal, frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)    
 
 
 log = logging.getLogger('noc-netmode')
 
-class AsyncSockListener(asyncore.dispatcher):
+class SockListenerThread(threading.Thread):
 
 	def __init__(self, sock, master):
-		self.map = {}
-		asyncore.dispatcher.__init__(self)
-		self.create_socket(socket.AF_UNIX, socket.SOCK_STREAM)
-		self.connect(sock)
+		threading.Thread.__init__(self)
+		self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+		self.socket.connect(sock)
 		self.master = master
-		asyncore.loop()
 
-	def readable(self):
-		return True
-
-	def writeable(self):
-		return False
-
-	def handle_close(self):
-		self.close()
-
-	def handle_read(self):
+	def run(self):
 		try:
-			data = self.recv(4096)
-			self.master.handle_event(data)
+			while True:
+				data = self.socket.recv(4096)
+				self.master.handle_event(data)
 		except socket.error:
 			socket.close()
 			raise
@@ -88,7 +85,9 @@ class Publisher:
 	def start(self):
 		if self.debug:
 			log.info("Initiating socket connection")
-		AsyncSockListener(self.sock, self)
+		self.socket_thread = SockListenerThread(self.sock, self)
+		self.socket_thread.daemon = True
+		self.socket_thread.start()
 
 	def handle_event(self, data):
 		data = data.decode('UTF-8')
