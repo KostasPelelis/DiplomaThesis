@@ -12,7 +12,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 from pubsub.publisher import Publisher
 
 os.chdir(os.getcwd() + '/tests')
-log = logging.getLogger('noc-netmode')
+from logger import init_logging
+log = init_logging('noc-netmode')
 
 def wait_and_send(self, sock):
 	log.info('Waiting for incoming connection')
