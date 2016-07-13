@@ -1,2 +1,7 @@
 __pycache__
 main.log
+logger.pyc
+./pubsub/__init__.pyc
+./__pycache__/logger.cpython-34.pyc
+./pubsub/__init__.pyc ./__pycache__/logger.cpython-34.pyc
+pubsub/__init__.pyc
