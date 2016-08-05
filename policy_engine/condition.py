@@ -2,35 +2,50 @@ from dispatcher import ConditionDispatcher
 
 class BaseCondition:
 
-	def validate(self):
+	def validate(self, args):
 		pass
 
 class OperatorCondition(BaseCondition):
 
-	def __init__(self, operator_method=None, rhs=None):
-		self.operator_method = operator_method
-		self.rhs = rhs
+	def __init__(self, operator_method=None, args=[], rhs=None):
+		self.operator_method 	= operator_method
+		self.rhs 				= rhs
+		self.args 				= []
 
-	def validate(self, args=None):
-		for arg in args:
-			if not self.operator_method(arg, self.rhs):
+	def validate(self, data):
+		# Use map to simplify code
+		for arg in self.args:
+			lhs = None
+			if arg['type'] == 'ref':
+				lhs = data[arg]
+			else:
+				lhs = arg
+			if not self.operator_method(lhs, self.rhs):
 				return False
 		return True
 
 class FuncCondition(BaseCondition):
 
-	def __init__(self, operator_method=None):
-		self.operator_method = operator_method
+	def __init__(self, operator_method=None, args=[]):
+		self.operator_method 	= operator_method
+		self.args 				= args
 
-	def validate(self, args):
-		return self.operator_method(**args)
+	def validate(self, data):
+		final_args = {}
+		for key, val in self.args.items():
+			if val['type'] == 'ref':
+				final_args[key] = data[val['value']] 
+			else:
+				final_args[key] = val['value']
+		return self.operator_method(**final_args)
 
 class ConditionParser:
 
-	def parse(data=None):
+	def parse(data=None, event_namespace=[]):
 
 		cond_name = None
 		if data['type'] == 'op':
+			args = format_args(data['arguments'], event_namespace)
 			if 'value' not in data:
 				raise Exception('Operator condition does not contain right side argument(value)')
 			operator = data['method']
@@ -47,13 +62,14 @@ class ConditionParser:
 			if operator == '<=':
 				cond_name = 'lte_method'
 			condition_method = getattr(ConditionDispatcher, cond_name)
-			return OperatorCondition(operator_method=condition_method, args=data['arguments'], rhs=data['value'])
+			return OperatorCondition(operator_method=condition_method, args=args, rhs=data['value'])
 
 		elif data['type'] == 'func':
+			args = format_kwargs(data['arguments'], event_namespace)
 			cond_name = data['method']
 			try:
 				condition_method = getattr(ConditionDispatcher, cond_name)
-				return FuncCondition(operator_method=condition_method, args=data['arguments'])
+				return FuncCondition(operator_method=condition_method, args=args)
 			except Exception:
 				raise Exception('Could not find condition method {0}'.format(cond_name))
 			

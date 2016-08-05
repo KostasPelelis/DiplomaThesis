@@ -8,11 +8,15 @@ class Policy:
 	according to the schema file
 	"""
 
-	def __init__(self, name=None, conditions=None, action=None):
+	def __init__(self, event=None, name=None, conditions=None, action=None):
 
-		self.name 		= name
-		self.conditions = []
-		self.action 	= None
+		self.name 				= name
+		self.conditions 		= []
+		self.action 			= None
+		self.event_namespace 	= []
+
+		if "arguments" in event:
+			self.event_namespace = event["arguments"]  
 
 		for condition in conditions:
 			try:
@@ -24,7 +28,7 @@ class Policy:
 	def trigger(self, event_data):
 
 		if _validate_conditions(event_data):
-			True
+			self.action.run(event_data)
 
 	def _validate_conditions(data):
 		for condition in conditions:

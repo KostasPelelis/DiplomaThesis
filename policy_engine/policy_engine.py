@@ -35,12 +35,12 @@ class PolicyEngine(object):
 		if self._yaml_regex.match(file):
 			try:
 				policy_data = self._parser.parse(source_file=file)
+				event_name = policy_data["event"]["name"] 
+				if event_name not in self.policies:
+					self.policies[event_name] = []
+				self.policies[event_name].append(policy_data)
 			except Exception as e:
 				raise
-			event_name = policy_data["event"]["name"] 
-			if event_name not in self.policies:
-				self.policies[event_name] = []
-			self.policies[event_name].append(policy_data)
 
 
 	def remove_policy(self, policy_name):
