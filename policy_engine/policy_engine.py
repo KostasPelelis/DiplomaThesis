@@ -73,7 +73,6 @@ class PolicyEngine(object):
 
 	def dispatch_event(self, event):
 		log.info("Dispatching event:")
-		log.info(json.dumps(event, sort_keys=True, indent=4, separators=(',', ': ')))
 		policies_to_trigger = self.policies[event["name"]]
 		for policy in policies_to_trigger:
 			policy.trigger(event["data"])
