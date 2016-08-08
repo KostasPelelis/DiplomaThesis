@@ -10,6 +10,7 @@ import collections
 import logging
 import signal
 from logger import Style
+from policy_engine.policy_engine import PolicyEngine
 log = logging.getLogger('noc-netmode')
 
 blockedIPs = collections.OrderedDict()
@@ -60,6 +61,8 @@ class SubThread(threading.Thread):
         self.pubsub = self.redis.pubsub(ignore_subscribe_messages=True)
         self.args   = args
         self.pubsub.subscribe(args['channel'])
+        self.policy_engine = PolicyEngine()
+        log.debug(self.policy_engine)
 
     def run(self):
 
@@ -72,6 +75,11 @@ class SubThread(threading.Thread):
                 printflush (e)
                 continue
             event = jsondata['event']
+            event_data = {
+                'name': event['alert']['category'],
+                'data': event
+            }
+            self.policy_engine.dispatch_event(event_data)
             log.info(Style.BOLD + "--------------------- New message received ---------------------" + Style.ESCAPE)
             for (key,value) in sorted(event.items()):
                 log.info("{0}: {1}".format(key.ljust(20),value))
