@@ -26,9 +26,7 @@ mapping:
             type: str
             required: yes
           "arguments":
-            type: seq
-            sequence: 
-              - type: any
+            type: any
           "value":
             type: any
   "action":
@@ -38,11 +36,4 @@ mapping:
         type: str
         required: yes
       "arguments":
-        type: seq
-        sequence:
-          - type: map
-            mapping:
-              "key":
-                type: str
-              "val":
-                type: any
+        type: any

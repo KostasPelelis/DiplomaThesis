@@ -2,29 +2,24 @@ name: 'PolicyName'
 event:
   name: 'EventName'
   arguments:
-    - 'src_ip'
-    - 'port'
-    - 'proto'
+    - 'foo'
+    - 'bar'
+    - 'baz'
 conditions:
   - type: 'op'
     method: '='
     arguments:
       # Here we can use variables from
       # the event arguments
-      - 'src_ip'
-    value:
-      '147.102.20.13'
+      - 'foo'
+    value: 2
   - type: 'func'
-    method: 'CheckSubnet'
+    method: 'FourtyCheck'
     arguments:
-    - key: 'subnet'
-      val: '147.102.39.0/8'
-    - key: 'IP'
-      val: 'src_ip'
+      'bar': 42
+      'baz': 2
 action:
-  name: 'PreventBlock'
+  name: 'FooAction'
   arguments:
-    - key: 'IP'
-      val: 'src_ip'
-    - key: 'delay'
-      val: 20
+    'foo': 'foo'
+    'fooval': 20

@@ -1,17 +1,22 @@
-from dispatcher import ActionDispatcher
-from util import format_args
+from policy_engine.dispatcher import ActionDispatcher
+from policy_engine.util import format_kwargs
 
 class Action:
 
-	def __init__(self, name=None, args=None):
+	def __init__(self, name=None, args=None, event_namespace=[]):
 		self.args = None
 		self.method = None
 		
-		self.args = format_args(args)
+		self.args = format_kwargs(args, event_namespace)
 		if name is not None:
 			self.method = getattr(ActionDispatcher, name)
 
-	def run(self, extra_args=None):
+	def run(self, data):
+		final_args = {}
 		if self.method is not None:
-			final_args = dict(self.args, **extra_args)
+			for key, val in self.args.items():
+				if val['type'] == 'ref':
+					final_args[key] = data[val['value']] 
+				else:
+					final_args[key] = val['value']
 			self.method(**final_args)

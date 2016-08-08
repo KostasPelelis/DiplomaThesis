@@ -1,9 +1,12 @@
-from dispatcher import ConditionDispatcher
+from policy_engine.dispatcher import ConditionDispatcher
+from policy_engine.util import format_args, format_kwargs
+
 
 class BaseCondition:
 
 	def validate(self, args):
 		pass
+
 
 class OperatorCondition(BaseCondition):
 
@@ -24,6 +27,7 @@ class OperatorCondition(BaseCondition):
 				return False
 		return True
 
+
 class FuncCondition(BaseCondition):
 
 	def __init__(self, operator_method=None, args=[]):
@@ -38,6 +42,7 @@ class FuncCondition(BaseCondition):
 			else:
 				final_args[key] = val['value']
 		return self.operator_method(**final_args)
+
 
 class ConditionParser:
 
@@ -63,7 +68,6 @@ class ConditionParser:
 				cond_name = 'lte_method'
 			condition_method = getattr(ConditionDispatcher, cond_name)
 			return OperatorCondition(operator_method=condition_method, args=args, rhs=data['value'])
-
 		elif data['type'] == 'func':
 			args = format_kwargs(data['arguments'], event_namespace)
 			cond_name = data['method']

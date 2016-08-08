@@ -7,12 +7,12 @@ be:
 (args) -> (bool)
 or else the system will throw an exception
 """
-
 class ActionDispatcher(object):
 	"""Available methods/actions for policies"""
 
-	def test_action(ip):
-		print("test_action")
+	def FooAction(foo=None, fooval=None):
+		print("FooAction foo={0} fooval={1}".format(foo, fooval))
+
 
 class ConditionDispatcher(object):
 
@@ -34,4 +34,5 @@ class ConditionDispatcher(object):
 	def gle_method(lhs, rhs):
 		return lhs >= rhs
 
-		
+	def FourtyCheck(bar=None, baz=None):
+		return bar - baz == 40
