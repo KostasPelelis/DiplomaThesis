@@ -19,8 +19,9 @@ def wait_and_send(self, sock):
 	log.info('Waiting for incoming connection')
 	connection, client_address = sock.accept()
 	try:
-		for _ in range(1,10):
-			rand_ip = ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
+		for _ in range(1,2):
+			# rand_ip = ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
+			rand_ip = "147.102.13.21"
 			logging.info(rand_ip)
 			message = {
 				'timestamp' : '2016-06-08T22:29:16.250407+0300',

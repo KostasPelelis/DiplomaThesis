@@ -7,12 +7,18 @@ be:
 (args) -> (bool)
 or else the system will throw an exception
 """
+
+import logging
+log = logging.getLogger('noc-netmode')
+
 class ActionDispatcher(object):
 	"""Available methods/actions for policies"""
 
 	def FooAction(foo=None, fooval=None):
 		print("FooAction foo={0} fooval={1}".format(foo, fooval))
 
+	def announce_ntua_ip(IP=None, proto='UDP'):
+		log.debug("Found a NTUA IP {0} with protocol {1}".format(IP, proto))
 
 class ConditionDispatcher(object):
 
@@ -36,3 +42,11 @@ class ConditionDispatcher(object):
 
 	def FourtyCheck(bar=None, baz=None):
 		return bar - baz == 40
+
+	def ntua_origin(IP=None):
+		log.debug('NTUA Origin ' + IP)
+		if IP is None:
+			return False
+		elif IP.split('.')[0] == '147':
+			return True
+		return False
