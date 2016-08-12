@@ -46,11 +46,11 @@ class FuncCondition(BaseCondition):
 
 class ConditionParser:
 
-	def parse(data=None, event_namespace=[]):
+	def parse(data=None):
 
 		cond_name = None
 		if data['type'] == 'op':
-			args = format_args(data['arguments'], event_namespace)
+			args = format_args(data['arguments'])
 			if 'value' not in data:
 				raise Exception('Operator condition does not contain right side argument(value)')
 			operator = data['method']
@@ -69,7 +69,7 @@ class ConditionParser:
 			condition_method = getattr(ConditionDispatcher, cond_name)
 			return OperatorCondition(operator_method=condition_method, args=args, rhs=data['value'])
 		elif data['type'] == 'func':
-			args = format_kwargs(data['arguments'], event_namespace)
+			args = format_kwargs(data['arguments'])
 			cond_name = data['method']
 			try:
 				condition_method = getattr(ConditionDispatcher, cond_name)

@@ -18,7 +18,8 @@ class TestPolicyEngine(unittest.TestCase):
 			},
 			'name': 'EventName'
 		})
-		self.assertTrue(True)
+		self.assertTrue(isinstance(p, PolicyEngine))
 
 if __name__ == "__main__":
-	unittest.main()
+	a = TestPolicyEngine()
+	a.run_test()

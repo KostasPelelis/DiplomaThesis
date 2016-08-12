@@ -12,18 +12,14 @@ class Policy:
 
 		self.name 				= name
 		self.conditions 		= []
-		self.event_namespace 	= []
 		self.action 			= None
-
-		if "arguments" in event:
-			self.event_namespace = event['arguments']  
 
 		for condition in conditions:
 			try:
-				self.conditions.append(ConditionParser.parse(condition, event_namespace=self.event_namespace))
+				self.conditions.append(ConditionParser.parse(condition))
 			except Exception as e:
 				raise
-		self.action	= Action(name=action["name"], args=action["arguments"], event_namespace=self.event_namespace)
+		self.action	= Action(name=action["name"], args=action["arguments"])
 
 	def trigger(self, event_data):
 

@@ -1,17 +1,13 @@
 name: 'PolicyName'
 event:
   name: 'EventName'
-  arguments:
-    - 'foo'
-    - 'bar'
-    - 'baz'
 conditions:
   - type: 'op'
     method: '='
     arguments:
       # Here we can use variables from
       # the event arguments
-      - 'foo'
+      - '$foo'
     value: 2
   - type: 'func'
     method: 'FourtyCheck'
@@ -21,5 +17,5 @@ conditions:
 action:
   name: 'FooAction'
   arguments:
-    'foo': 'foo'
+    'foo': '$foo'
     'fooval': 20

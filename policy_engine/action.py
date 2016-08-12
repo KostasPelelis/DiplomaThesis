@@ -3,11 +3,11 @@ from policy_engine.util import format_kwargs
 
 class Action:
 
-	def __init__(self, name=None, args=None, event_namespace=[]):
+	def __init__(self, name=None, args=None):
 		self.args = None
 		self.method = None
 		
-		self.args = format_kwargs(args, event_namespace)
+		self.args = format_kwargs(args)
 		if name is not None:
 			self.method = getattr(ActionDispatcher, name)
 

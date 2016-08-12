@@ -10,10 +10,6 @@ mapping:
       "name":
         type: str
         required: yes
-      "arguments":
-        type: seq
-        sequence:
-          - type: str
   "conditions":
     type: seq
     sequence:

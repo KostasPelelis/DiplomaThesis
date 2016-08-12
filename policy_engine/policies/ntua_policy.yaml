@@ -1,22 +1,18 @@
 name: 'Ntua Policy'
 event:
   name: 'Web Application Attack'
-  arguments:
-    - 'src_ip'
-    - 'dest_port'
-    - 'proto'
 conditions:
   - type: 'op'
     method: '='
     arguments:
-      - 'dest_port'
+      - '$dest_port'
     value: 53
   - type: 'func'
     method: 'ntua_origin'
     arguments:
-      'IP': src_ip
+      'IP': '$src_ip'
 action:
   name: 'announce_ntua_ip'
   arguments:
-    'IP': 'src_ip'
-    'proto': 'proto'
+    'IP': '$src_ip'
+    'proto': '$proto'
