@@ -8,3 +8,6 @@ pubsub/__init__.pyc
 .gitkeep
 ./**/.gitkeep
 webservice/frontend/app/lib/
+policy_engine/policies/
+webservice/frontend/app/css/themes/
+webservice/frontend/semantic
