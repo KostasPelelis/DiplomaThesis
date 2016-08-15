@@ -22,7 +22,6 @@ angular.module('netmode.admin.controllers', [])
 		$scope.buttonText = 'Create';
 		
 		$scope.savePolicy = function() {
-			console.log($scope.policy)
 			$('#policy-submit').addClass('loading');
 			$('#new-policy-error-message').fadeIn();
 			$scope.policy.$save(function() {

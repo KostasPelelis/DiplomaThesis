@@ -22,22 +22,15 @@ def get():
 		policies = PolicyEngine().list_policies()
 		return create_ok_response([{"id": idx, "policy": policy, "enabled": False} for idx, policy in enumerate(policies)])
 	if request.method == "POST":
-		print(request.form)
-		args = {}
+		print(request.get_data())
+		from_json = False
 		if request.args.get('from_json'):
-			args = {
-				'data': request.form,
-				'from_json': True
-			}
-		elif request.get_data() is not None:
-			args = {
-				'data': request.get_data().decode('UTF-8'),
-				'from_json': False
-			}
-		else:
+			from_json = True
+		data = request.get_data().decode('utf-8')
+		if data is not None:
 			return create_error_response("No data were provided")
 		try:
-			PolicyEngine().add_policy(**args)
+			PolicyEngine().add_policy(data=data, from_json=from_json)
 		except Exception as e:
 			return create_error_response("Error while parsing policy")
 
