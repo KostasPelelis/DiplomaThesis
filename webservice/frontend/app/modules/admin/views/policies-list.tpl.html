@@ -1,0 +1,42 @@
+<table class="ui compact celled definition table">
+	<h3>Policies List</h3>
+  <thead class="full-width">
+    <tr>
+      <th>Status</th>
+      <th>Name</th>
+      <th>Event</th>
+      <th>Action</th>
+      <th class="center aligned">Edit/Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="policy in policies | orderBy:'-id'">
+      <td ng-if="policy.enabled == true" class="positive">
+      <i class="icon checkmark"></i>Enabled
+      </td>
+      <td ng-if="policy.enabled == false" class="error">
+      <i class="icon close"></i>Disabled
+      </td>
+
+      <td>{{policy.policy.name}}</td>
+      <td>{{policy.policy.event.name}}</td>
+      <td>{{policy.policy.action.name}}</td>
+      <td class="center aligned">
+      	<a class="btn btn-primary" ui-sref="admin.policyUpdate({id: policy.id})"><i class="edit yellow icon"></i></a>
+				<a class="btn btn-danger" ng-click="deletePolicy(policy)"><i class="remove red icon"></i></a>
+      </td>
+
+    </tr>
+  <tfoot class="full-width">
+    <tr>
+      <th></th>
+      <th colspan="4">
+      	<a ui-sref="admin.policyNew">
+        <div class="ui right floated small primary labeled icon button">
+          <i class="add circle icon"></i>Add Policy
+        </div>
+        </a>
+      </th>
+    </tr>
+  </tfoot>
+</table>

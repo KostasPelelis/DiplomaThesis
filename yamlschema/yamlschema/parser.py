@@ -17,7 +17,7 @@ class Parser:
 
 
 
-	def parse(self, source_file=None, source_data=None):
+	def parse(self, source_file=None, source_data=None, from_json=False):
 		
 		if source_file is not None:
 			try:
@@ -28,7 +28,8 @@ class Parser:
 			except Exception as e:
 				raise
 		elif source_data is not None:
-			source_data = yaml.load(source_data)
+			if not from_json:
+				source_data = yaml.load(source_data)
 			print(source_data)
 			try:
 				self.validator = Core(

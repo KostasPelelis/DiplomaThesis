@@ -48,7 +48,7 @@ class PolicyEngine(object):
 						pass
 			log.debug('Loaded {0} policies'.format(len(self.policies)))
 
-		def add_policy(self, file=None, data=None):
+		def add_policy(self, file=None, data=None, from_json=False):
 			policy_data = None
 			try:
 				if file is not None and self._yaml_regex.match(file):
@@ -56,7 +56,7 @@ class PolicyEngine(object):
 					policy_data = self._parser.parse(source_file=file)
 				elif data is not None:
 					log.debug('Adding policy from data {0}'.format(data))
-					policy_data = self._parser.parse(source_data=data)
+					policy_data = self._parser.parse(source_data=data, from_json=from_json)
 			except Exception as e:
 				log.error("Error while parsing policy")
 				print(e)

@@ -5,13 +5,13 @@ from policy_engine.policy_engine import PolicyEngine
 from flask import jsonify
 
 
-app = Flask(__name__, static_url_path='/static', static_folder="frontend/dist")
+app = Flask(__name__, static_url_path='', static_folder="frontend/app")
 
 def create_error_response(reason="Error"):
 	return jsonify({"success": False, "message": reason}), 400
 
 def create_ok_response(message={}):
-	return jsonify({"success": False, "message": message}), 200
+	return jsonify(message), 200
 
 @app.route("/api/v1/policies", methods=['GET', 'POST'])
 def get():
@@ -20,13 +20,24 @@ def get():
 	"""
 	if request.method == "GET":
 		policies = PolicyEngine().list_policies()
-		return create_ok_response([{"id": idx, "policy": policy } for idx, policy in enumerate(policies)])
+		return create_ok_response([{"id": idx, "policy": policy, "enabled": False} for idx, policy in enumerate(policies)])
 	if request.method == "POST":
-		data = request.get_data().decode('UTF-8')
-		if data is None:
+		print(request.form)
+		args = {}
+		if request.args.get('from_json'):
+			args = {
+				'data': request.form,
+				'from_json': True
+			}
+		elif request.get_data() is not None:
+			args = {
+				'data': request.get_data().decode('UTF-8'),
+				'from_json': False
+			}
+		else:
 			return create_error_response("No data were provided")
 		try:
-			PolicyEngine().add_policy(data=data)
+			PolicyEngine().add_policy(**args)
 		except Exception as e:
 			return create_error_response("Error while parsing policy")
 

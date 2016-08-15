@@ -1,0 +1,59 @@
+<div class="field">
+	<label>Policy Name</label>
+	<input type="text" name="name" ng-model="policy.name" ng-required="true" class="form-control" id="name" placeholder="Policy Name">
+	<span class="error-message" ng-show="policyForm.name.$dirty">Policy Name is required</span>
+</div>
+<div class="field">
+	<label>Event Name</label>
+	<input type="text" name="name" ng-model="policy.event.name" ng-required="true" class="form-control" id="name" placeholder="Policy Event Name">
+	<span class="error-message" ng-show="policyForm.event.name.$dirty">Policy Name is required</span>
+</div>
+
+<div class="field">
+	<label>Event Conditions</label>
+	<div class="ui relaxed divided list" ng-repeat="condition in policy.conditions">
+		<div class="item">
+			<div class="list">
+				<div class="item"><b>Type</b>: {{condition.type}}</div>
+				<div class="item"><b>Method</b>: {{condition.method}}</div>
+				<div class="item"><b>Arguments</b>: {{condition.arguments}}</div>
+				<div class="item" ng-if="condition.value"><b>Value</b>: {{condition.value}}</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="fields">
+	<div class="field">
+		<input type="text" name="type" ng-model="newCondition.type" ng-required="true" class="form-control" placeholder="Type">		
+	</div>
+	<div class="field">
+		<input type="text" name="method" ng-model="newCondition.method" ng-required="true" class="form-control" placeholder="Method">
+	</div>
+	<div class="field">
+		<input type="text" name="arguments" ng-model="newCondition.arguments" ng-required="true" class="form-control" placeholder="Arguments">
+	</div>
+
+	<div class="field" ng-if="newCondition.type.toLowerCase() == 'op'">
+		<input type="text" name="value" ng-model="newCondition.value" ng-required="true" class="form-control" placeholder="Value">
+	</div>
+ 	<button type="button" class="positive ui button" ng-click="addCondition(newCondition)">Add Condition</button>
+</div>
+
+<div class="field">
+	<input type="text" name="action.name" ng-model="policy.action.name" ng-required="true" class="form-control" placeholder="Action Name">
+</div>
+
+<div class="field">
+	<input type="text" name="action.arguments" ng-model="policy.action.arguments" ng-required="true" class="form-control" placeholder="Action Arguments">
+</div>
+<div id="new-policy-error-message" class="ui hidden negative message">
+	<i class="close icon" ng-click="closeMessage()"></i>
+	<div class="header">
+	Something went wrong while adding the policy!
+	</div>
+	<p>Check the argments again and retry</p>
+</div>
+<button type="submit" id="policy-submit" class="positive ui button" ng-disabled="policyForm.$invalid">{{buttonText}}</button>
+
+
