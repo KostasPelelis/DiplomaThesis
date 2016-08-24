@@ -5,3 +5,6 @@ logger.pyc
 ./__pycache__/logger.cpython-34.pyc
 ./pubsub/__init__.pyc ./__pycache__/logger.cpython-34.pyc
 pubsub/__init__.pyc
+logger.pyc
+logger.py main.py
+*.pyc
