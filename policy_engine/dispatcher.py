@@ -18,7 +18,7 @@ class ActionDispatcher(object):
 		print("FooAction foo={0} fooval={1}".format(foo, fooval))
 
 	def announce_ntua_ip(IP=None, proto='UDP'):
-		log.debug("Found a NTUA IP {0} with protocol {1}".format(IP, proto))
+		print("Found a NTUA IP {0} with protocol {1}".format(IP, proto))
 
 class ConditionDispatcher(object):
 

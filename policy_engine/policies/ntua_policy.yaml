@@ -14,5 +14,5 @@ conditions:
 action:
   name: 'announce_ntua_ip'
   arguments:
-    'IP': '$src_ip'
+    'IP': '$alert.action'
     'proto': '$proto'
