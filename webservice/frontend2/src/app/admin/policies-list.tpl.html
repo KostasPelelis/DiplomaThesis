@@ -10,12 +10,12 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="policy in policies | orderBy:'-id'">
+    <tr ng-repeat="polic in policies | orderBy:'-id'">
       <td ng-if="policy.enabled == true" class="positive">
-      <i class="icon checkmark"></i>Enabled
+        <i class="icon checkmark"></i>Enabled
       </td>
       <td ng-if="policy.enabled == false" class="error">
-      <i class="icon close"></i>Disabled
+        <i class="icon close"></i>Disabled
       </td>
 
       <td>{{policy.policy.name}}</td>

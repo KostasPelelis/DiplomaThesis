@@ -1,4 +1,9 @@
-angular.module('netmode', ['ui.router', 'ngResource', 'policiesModule', 'adminModule'])
+angular.module('netmode', [
+	'ui.router', 
+	'ngResource', 
+	'admin',
+	'templates.app',
+])
 .run(['$state', function($state){
-	$state.go('viewPolicies');
+	$state.go('admin.viewPolicies');
 }]);

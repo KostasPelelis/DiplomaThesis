@@ -1,12 +1,12 @@
 angular.module('netmode.admin.policiescrud', [])
-.controller('PolicyNewController', ['$scope', '$state', 'Policy',
+.controller('PolicyNewController', ['$scope', '$state',
 	function($scope, $state, Policy){
-		$scope.policy = new Policy({
+		$scope.policy = {
 			name: '',
 			event: {name: '', arguments: []},
 			conditions: [],
 			action: null
-		});
+		}
 		
 		$scope.addCondition = function(condition) {
 			var newCondition = angular.copy(condition);
@@ -55,9 +55,9 @@ angular.module('netmode.admin.policiescrud', [])
 		}
 	}
 ])
-.controller('PoliciesListController', ['$scope', 'Policy', 'popupService', '$state',
-	function($scope, Policy, popupService, $state){
-		$scope.policies = Policy.query();
+.controller('PoliciesListController', ['$scope', 'popupService', '$state',
+	function($scope, popupService, $state){
+		$scope.policies = [];
 		$scope.deletePolicy = function(policy) {
 			console.log('Deleting', policy)
 			if (popupService.showPopup("Really delete this?")) {

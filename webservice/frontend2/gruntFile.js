@@ -89,7 +89,7 @@ module.exports = function (grunt) {
         }
       },
       angular: {
-        src:['vendor/angular/angular.js', 'vendor/angular/angular-route.js', 'vendor/angular/angular-resource.js'],
+        src:['vendor/angular/angular.js', 'vendor/angular-ui-router/*.js', 'vendor/angular/angular-resource.min.js'],
         dest: '<%= distdir %>/angular.js'
       },
       semanticui: {
