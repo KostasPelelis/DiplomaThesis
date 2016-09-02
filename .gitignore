@@ -8,3 +8,6 @@ pubsub/__init__.pyc
 logger.pyc
 logger.py main.py
 *.pyc
+webservice/frontend2/node_modules/
+webservice/frontend2/dist/
+webservice/frontend2/vendor/

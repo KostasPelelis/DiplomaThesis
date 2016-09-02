@@ -37,7 +37,7 @@ class ColoredFormatter(logging.Formatter):
         return logging.Formatter.format(self, record)
 
 
-def init_logging(name='noc-netmode', logfile='main.log'):
+def init_logging(name='noc-netmode', logfile='logs/main.log'):
     
     class LogFilter(logging.Filter):
         def __init__(self, level):
