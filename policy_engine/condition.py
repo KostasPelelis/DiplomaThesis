@@ -3,7 +3,8 @@ from .util import (
     format_args,
     format_kwargs,
     format_arg,
-    format_event_data
+    format_event_data,
+    format_event_value
 )
 
 
@@ -21,12 +22,9 @@ class OperatorCondition(BaseCondition):
         self.rhs = rhs
 
     def validate(self, data):
-        lhs = None
-        if self.lhs['type'] == 'ref':
-            lhs = data[self.lhs['value']]
-        else:
-            lhs = self.lhs['value']
-        return self.operator_method(lhs, self.rhs)
+        lhs = format_event_value(self.lhs, data)
+        rhs = format_event_value(self.rhs, data)
+        return self.operator_method(lhs, rhs)
 
 
 class FuncCondition(BaseCondition):

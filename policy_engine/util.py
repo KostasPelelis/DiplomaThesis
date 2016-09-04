@@ -34,3 +34,10 @@ def format_event_data(args, event_data):
         else:
             final_args[key] = val['value']
     return final_args
+
+
+def format_event_value(arg, event_val):
+    if arg['type'] == 'ref':
+        return event_val[arg['value']]
+    else:
+        return arg['value']
