@@ -1,5 +1,5 @@
-from policy_engine.context import ConditionContext
-from policy_engine.util import (
+from .context import ConditionContext
+from .util import (
     format_args,
     format_kwargs,
     format_arg,
@@ -42,7 +42,7 @@ class FuncCondition(BaseCondition):
 
 class ConditionParser:
 
-    def parse(data=None):
+    def parse(data=None, ctx=None):
 
         if data['type'] == 'op':
             lhs = format_arg(data['lhs'])
@@ -74,7 +74,10 @@ class ConditionParser:
             args = format_kwargs(data['arguments'])
             method_name = data['method']
             try:
-                method = getattr(ConditionContext, method_name)
+                if ctx is None:
+                    method = getattr(ConditionContext, method_name)
+                else:
+                    method = getattr(ctx, method_name)
                 return FuncCondition(
                     method=method,
                     args=args

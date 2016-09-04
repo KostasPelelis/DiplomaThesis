@@ -1,6 +1,6 @@
-from policy_engine.condition import ConditionParser
-from policy_engine.action import Action
-from policy_engine.errors import ConditionParseException
+from .condition import ConditionParser
+from .action import Action
+from .errors import ConditionParseException
 
 
 class Policy:
@@ -29,18 +29,18 @@ class Policy:
                 _dict = _dict[fragment]
             _dict[fragments[-1]] = val
 
-    def __init__(self, event=None, name=None, conditions=None, action=None):
+    def __init__(self, event=None, name=None, conditions=None, action=None,
+                 condition_context=None, action_context=None):
 
         self.name = name
         self.conditions = []
-        self.action = None
-
+        self.action = None   
         for condition in conditions:
             try:
-                self.conditions.append(ConditionParser.parse(condition))
+                self.conditions.append(ConditionParser.parse(data=condition, ctx=condition_context))
             except Exception as e:
                 raise ConditionParseException(e)
-        self.action = Action(name=action["name"], args=action["arguments"])
+        self.action = Action(name=action["name"], args=action["arguments"], ctx=action_context)
 
     """
     Trigger function is called to activate a policy with some
