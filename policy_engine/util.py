@@ -17,3 +17,20 @@ def format_kwargs(kwargs):
         else:
             ret[arg_key] = {'type': 'val', 'value': arg_value}
     return ret
+
+
+def format_arg(arg):
+    if isinstance(arg, str) and arg[0] == '$':
+        return ({'type': 'ref', 'value': arg[2:-1] if arg[1] == '(' else arg[1:]})
+    else:
+        return ({'type': 'val', 'value': arg})
+
+
+def format_event_data(args, event_data):
+    final_args = {}
+    for key, val in args.items():
+        if val['type'] == 'ref':
+            final_args[key] = event_data[val['value']]
+        else:
+            final_args[key] = val['value']
+    return final_args

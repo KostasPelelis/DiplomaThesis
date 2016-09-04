@@ -4,11 +4,8 @@ event:
 conditions:
   - type: 'op'
     method: '='
-    arguments:
-      # Here we can use variables from
-      # the event arguments
-      - '$foo'
-    value: 2
+    lhs: '$foo'
+    rhs: 2
   - type: 'func'
     method: 'FourtyCheck'
     arguments:

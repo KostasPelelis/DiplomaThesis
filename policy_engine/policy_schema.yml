@@ -13,18 +13,7 @@ mapping:
   "conditions":
     type: seq
     sequence:
-      - type: map
-        mapping: 
-          "type":
-            type: str
-            required: yes
-          "method":
-            type: str
-            required: yes
-          "arguments":
-            type: any
-          "value":
-            type: any
+      - type: any
   "action":
     type: map
     mapping:

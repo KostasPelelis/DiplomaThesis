@@ -4,8 +4,8 @@ event:
 conditions:
   - type: 'op'
     method: '='
-    left_arg: '$(dest_port)'
-    right_arg: 53
+    lhs: '$(dest_port)'
+    rhs: 53
   - type: 'func'
     method: 'ntua_origin'
     arguments:

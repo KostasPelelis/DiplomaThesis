@@ -1,6 +1,6 @@
 from policy_engine.condition import ConditionParser
 from policy_engine.action import Action
-from errros import ConditionParseException
+from policy_engine.errors import ConditionParseException
 
 
 class Policy:
@@ -39,7 +39,7 @@ class Policy:
             try:
                 self.conditions.append(ConditionParser.parse(condition))
             except Exception as e:
-                raise ConditionParseException
+                raise ConditionParseException(e)
         self.action = Action(name=action["name"], args=action["arguments"])
 
     """
