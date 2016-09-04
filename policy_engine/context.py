@@ -12,7 +12,7 @@ import logging
 log = logging.getLogger('noc-netmode')
 
 
-class ActionDispatcher(object):
+class ActionContext(object):
     """Available methods/actions for policies"""
 
     def FooAction(foo=None, fooval=None):
@@ -25,7 +25,7 @@ class ActionDispatcher(object):
         pass
 
 
-class ConditionDispatcher(object):
+class ConditionContext(object):
 
     def equal_method(lhs, rhs):
         return lhs == rhs

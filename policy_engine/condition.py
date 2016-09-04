@@ -1,5 +1,10 @@
-from policy_engine.dispatcher import ConditionDispatcher
-from policy_engine.util import format_args, format_kwargs
+from policy_engine.context import ConditionContext
+from policy_engine.util import (
+    format_args,
+    format_kwargs,
+    format_arg,
+    format_event_data
+)
 
 
 class BaseCondition:
@@ -10,37 +15,28 @@ class BaseCondition:
 
 class OperatorCondition(BaseCondition):
 
-    def __init__(self, operator_method=None, args=[], rhs=None):
+    def __init__(self, operator_method=None, lhs=None, rhs=None):
         self.operator_method = operator_method
+        self.lhs = lhs
         self.rhs = rhs
-        self.args = []
 
     def validate(self, data):
-        # Use map to simplify code
-        for arg in self.args:
-            lhs = None
-            if arg['type'] == 'ref':
-                lhs = data[arg]
-            else:
-                lhs = arg
-            if not self.operator_method(lhs, self.rhs):
-                return False
-        return True
+        lhs = None
+        if self.lhs['type'] == 'ref':
+            lhs = data[self.lhs['value']]
+        else:
+            lhs = self.lhs['value']
+        return self.operator_method(lhs, self.rhs)
 
 
 class FuncCondition(BaseCondition):
 
-    def __init__(self, operator_method=None, args=[]):
-        self.operator_method = operator_method
+    def __init__(self, method=None, args=[]):
+        self.method = method
         self.args = args
 
     def validate(self, data):
-        final_args = {}
-        for key, val in self.args.items():
-            if val['type'] == 'ref':
-                final_args[key] = data[val['value']]
-            else:
-                final_args[key] = val['value']
+        final_args = format_event_data(self.args, data)
         return self.operator_method(**final_args)
 
 
@@ -48,14 +44,13 @@ class ConditionParser:
 
     def parse(data=None):
 
-        cond_name = None
         if data['type'] == 'op':
-            args = format_args(data['arguments'])
-            if 'value' not in data:
-                raise Exception('Operator condition does not contain right side argument(value)')
+            lhs = format_arg(data['lhs'])
+            rhs = format_arg(data['rhs'])
             operator = data['method']
+            cond_name = None
             if operator == '=':
-                condition_method = 'equal_method'
+                cond_name = 'equal_method'
             if operator == '!=':
                 cond_name = 'not_equal_method'
             if operator == '>':
@@ -66,23 +61,26 @@ class ConditionParser:
                 cond_name = 'gte_method'
             if operator == '<=':
                 cond_name = 'lte_method'
-            condition_method = getattr(ConditionDispatcher, cond_name)
-            return OperatorCondition(
-                operator_method=condition_method,
-                args=args,
-                rhs=data['value']
-            )
+            try:
+                operator_method = getattr(ConditionContext, cond_name)
+                return OperatorCondition(
+                    operator_method=operator_method,
+                    lhs=lhs,
+                    rhs=rhs
+                )
+            except AttributeError:
+                raise Exception('Unknown method {0}'.format(cond_name))
         elif data['type'] == 'func':
             args = format_kwargs(data['arguments'])
-            cond_name = data['method']
+            method_name = data['method']
             try:
-                condition_method = getattr(ConditionDispatcher, cond_name)
+                method = getattr(ConditionContext, method_name)
                 return FuncCondition(
-                    operator_method=condition_method,
+                    method=method,
                     args=args
                 )
-            except Exception:
+            except AttributeError:
                 raise Exception('Could not find condition method {0}'.format(
-                    cond_name))
-        if cond_name is None:
+                    method_name))
+        else:
             raise Exception('Unknown condition type {0}'.format(data['type']))
