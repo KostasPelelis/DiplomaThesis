@@ -1,7 +1,5 @@
-# from logger import init_logging
-# init_logging()
-# from pubsub import subscriber
-from webservice.server import app
+from policy_engine.test import *
 
-if __name__ == "__main__":
-    app.run(port=4000)
+a = TestPolicyEngine()
+a.test_ctx_decorator()
+a.test_policy_dispatch()

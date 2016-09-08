@@ -23,11 +23,12 @@ TODO:
 
 import os
 import re
-from yamlschema.yamlschema.parser import Parser
-from .policy import Policy
 import logging
 import json
+from yamlschema.yamlschema.parser import Parser
+
 from .errors import InvalidPolicyException
+from .policy import Policy
 
 log = logging.getLogger('noc-netmode')
 
@@ -53,8 +54,17 @@ class PolicyEngine(object):
         self._parser = Parser(schema_file=policy_schema)
         # Dummy way of checking yaml files legitimacy
         self._yaml_regex = re.compile(r'^.*\.(yaml|yml)$')
-        self.action_context = action_context
-        self.condition_context = condition_context
+        if action_context is None:
+            from .context import ActionContext
+            self.action_context = ActionContext
+        else:
+            self.action_context = action_context
+        if condition_context is None:
+            from .context import ConditionContext
+            self.condition_context = ConditionContext
+        else:
+            self.condition_context = condition_context
+        self.filters = {}
         # Walk the policies folder and parse all policies
         if policies_folder is None:
             policies_folder = self.POLICIES_FOLDER
@@ -86,13 +96,25 @@ class PolicyEngine(object):
                         name=policy_data['name'],
                         conditions=policy_data['conditions'],
                         action=policy_data['action'],
-                        condition_context=self.condition_context,
-                        action_context=self.action_context
+                        policy_engine=self
                     ))
             except Exception as e:
                 log.error('Error while adding policy {0}. Reason {1}'.format(
                     file, e))
                 raise InvalidPolicyException
+
+    def action_ctx(self, ctx):
+        self.action_context = ctx
+
+    def condition_ctx(self, ctx):
+        self.condition_context = ctx
+
+    def filter(self, filter_name):
+        def decorator(func):
+            self.filters[filter_name] = func
+            return func
+        return decorator
+
 
     def remove_policy(self, policy_name):
         pass

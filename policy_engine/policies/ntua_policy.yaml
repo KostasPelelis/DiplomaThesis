@@ -7,7 +7,7 @@ conditions:
     lhs: '$(dest_port)'
     rhs: 53
   - type: 'func'
-    method: 'ntua_origin'
+    method: 'is_subnet'
     arguments:
       'IP': '$src_ip'
 action:

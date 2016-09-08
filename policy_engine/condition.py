@@ -1,4 +1,3 @@
-from .context import ConditionContext
 from .util import (
     format_args,
     format_kwargs,
@@ -10,37 +9,40 @@ from .util import (
 
 class BaseCondition:
 
-    def validate(self, args):
+    def validate(self,args):
         pass
 
 
 class OperatorCondition(BaseCondition):
 
-    def __init__(self, operator_method=None, lhs=None, rhs=None):
+    def __init__(self, policy_engine=None, operator_method=None,lhs=None, rhs=None):
+        self.pe = policy_engine
         self.operator_method = operator_method
         self.lhs = lhs
         self.rhs = rhs
 
     def validate(self, data):
-        lhs = format_event_value(self.lhs, data)
-        rhs = format_event_value(self.rhs, data)
+
+        lhs = format_event_value(self.lhs, data, self.pe.filters)
+        rhs = format_event_value(self.rhs, data, self.pe.filters)
         return self.operator_method(lhs, rhs)
 
 
 class FuncCondition(BaseCondition):
 
-    def __init__(self, method=None, args=[]):
+    def __init__(self, policy_engine=None, method=None, args=[]):
+        self.pe = policy_engine
         self.method = method
         self.args = args
 
     def validate(self, data):
-        final_args = format_event_data(self.args, data)
+        final_args = format_event_data(self.args, data, self.pe.filters)
         return self.operator_method(**final_args)
 
 
 class ConditionParser:
 
-    def parse(data=None, ctx=None):
+    def parse(data=None, policy_engine=None):
 
         if data['type'] == 'op':
             lhs = format_arg(data['lhs'])
@@ -60,8 +62,9 @@ class ConditionParser:
             if operator == '<=':
                 cond_name = 'lte_method'
             try:
-                operator_method = getattr(ConditionContext, cond_name)
+                operator_method = getattr(policy_engine.condition_context, cond_name)
                 return OperatorCondition(
+                    policy_engine=policy_engine,
                     operator_method=operator_method,
                     lhs=lhs,
                     rhs=rhs
@@ -72,11 +75,9 @@ class ConditionParser:
             args = format_kwargs(data['arguments'])
             method_name = data['method']
             try:
-                if ctx is None:
-                    method = getattr(ConditionContext, method_name)
-                else:
-                    method = getattr(ctx, method_name)
+                method = getattr(policy_engine.condition_context, method_name)
                 return FuncCondition(
+                    policy_engine=policy_engine,
                     method=method,
                     args=args
                 )

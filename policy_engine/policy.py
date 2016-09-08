@@ -30,17 +30,18 @@ class Policy:
             _dict[fragments[-1]] = val
 
     def __init__(self, event=None, name=None, conditions=None, action=None,
-                 condition_context=None, action_context=None):
+                 policy_engine=None):
 
         self.name = name
         self.conditions = []
         self.action = None   
+        self.policy_engine = policy_engine
         for condition in conditions:
             try:
-                self.conditions.append(ConditionParser.parse(data=condition, ctx=condition_context))
+                self.conditions.append(ConditionParser.parse(data=condition, policy_engine=self.policy_engine))
             except Exception as e:
                 raise ConditionParseException(e)
-        self.action = Action(name=action["name"], args=action["arguments"], ctx=action_context)
+        self.action = Action(name=action["name"], args=action["arguments"], policy_engine=self.policy_engine)
 
     """
     Trigger function is called to activate a policy with some
