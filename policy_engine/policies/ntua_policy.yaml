@@ -2,14 +2,11 @@ name: 'Ntua Policy'
 event:
   name: 'Web Application Attack'
 conditions:
-  - type: 'op'
-    method: '='
-    lhs: '$(dest_port)'
-    rhs: 53
   - type: 'func'
-    method: 'is_subnet'
+    method: 'belongs_to_subnet'
     arguments:
-      'IP': '$src_ip'
+      'ip': '$src_ip'
+      'subnet': '147.102.0.0/16'
 action:
   name: 'new_action'
   arguments:

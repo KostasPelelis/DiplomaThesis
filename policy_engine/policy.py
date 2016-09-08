@@ -1,6 +1,6 @@
-from .condition import ConditionParser
-from .action import Action
-from .errors import ConditionParseException
+from policy_engine.condition import ConditionParser
+from policy_engine.action import Action
+from policy_engine.errors import ConditionParseError
 
 
 class Policy:
@@ -34,14 +34,17 @@ class Policy:
 
         self.name = name
         self.conditions = []
-        self.action = None   
+        self.action = None
         self.policy_engine = policy_engine
         for condition in conditions:
             try:
-                self.conditions.append(ConditionParser.parse(data=condition, policy_engine=self.policy_engine))
+                self.conditions.append(
+                    ConditionParser.parse(data=condition,
+                                          policy_engine=self.policy_engine))
             except Exception as e:
-                raise ConditionParseException(e)
-        self.action = Action(name=action["name"], args=action["arguments"], policy_engine=self.policy_engine)
+                raise ConditionParseError(e)
+        self.action = Action(name=action["name"], args=action["arguments"],
+                             policy_engine=self.policy_engine)
 
     """
     Trigger function is called to activate a policy with some
@@ -54,7 +57,7 @@ class Policy:
 
     """
     Validate all Conditions and return True if ALL conditions are
-    satisfied 
+    satisfied
     """
     def _validate_conditions(self, data):
         for condition in self.conditions:

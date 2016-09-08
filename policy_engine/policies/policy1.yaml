@@ -5,14 +5,14 @@ conditions:
   - type: 'op'
     method: '='
     lhs: '$foo'
-    rhs: 2
+    rhs: 10
   - type: 'func'
-    method: 'FourtyCheck'
+    method: 'condition_method'
     arguments:
-      'bar': 42
-      'baz': 2
+      'arg1': '$bar'
+      'arg2': 2
 action:
-  name: 'FooAction'
+  name: 'action_method'
   arguments:
-    'foo': '$foo'
-    'fooval': 20
+    'arg1': '$baz'
+    'arg2': 10

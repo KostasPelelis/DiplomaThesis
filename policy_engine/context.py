@@ -21,8 +21,11 @@ class ActionContext(object):
     def announce_ntua_ip(IP=None, proto='UDP'):
         print("Found a NTUA IP {0} with protocol {1}".format(IP, proto))
 
-    def new_action(arg1=None, arg2=None):
+    def action_method(arg1=None, arg2=None):
         pass
+
+    def new_action(proto=None, IP=None):
+        print(proto, IP)
 
 
 class OperatorContext(object):
@@ -58,3 +61,11 @@ class ConditionContext(object):
         elif IP.split('.')[0] == '147':
             return True
         return False
+
+    def belongs_to_subnet(ip=None, subnet=None):
+        from netaddr import IPNetwork
+        subnet = IPNetwork(subnet)
+        return ip in subnet
+
+    def condition_method(*args, **kwargs):
+        return True

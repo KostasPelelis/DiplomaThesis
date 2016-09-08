@@ -20,15 +20,16 @@ Example:
 TODO:
     Completely remove pykwalify
 """
-
 import os
 import re
 import logging
 import json
+from queue import Queue
+import threading
 from yamlschema.yamlschema.parser import Parser
 
-from .errors import InvalidPolicyException
-from .policy import Policy
+from policy_engine.errors import InvalidPolicy
+from policy_engine.policy import Policy
 
 log = logging.getLogger('noc-netmode')
 
@@ -41,19 +42,54 @@ class PolicyEngine(object):
     POLICY_SCHEMA = "./policy_engine/policy_schema.yml"
     POLICIES_FOLDER = "./policy_engine/policies"
 
-    def __init__(self, policies_folder=None, policy_schema=None,
-                 action_context=None, condition_context=None):
+    class Dispatcher(threading.Thread):
+
+        def __init__(self, queue, policy_engine, id):
+            threading.Thread.__init__(self)
+            self.queue = queue
+            self.policy_engine = policy_engine
+            self.id = id
+
+        def run(self):
+            while True:
+                event = self.queue.get()
+                event = json.loads(event)
+                log.info('Worker {0} handling event {1}'
+                         .format(self.id, event))
+                policies_to_trigger = self.policy_engine.policies.get(
+                    event["name"], [])
+                for policy in policies_to_trigger:
+                    try:
+                        policy.trigger(event['event_data'])
+                    except KeyError:
+                        continue
+                    except Exception as e:
+                        log.error(e)
+                        continue
+                self.queue.task_done()
+
+    def __init__(self, name, action_context=None, condition_context=None,
+                 workers=3):
 
         log.debug('Initializing Policy Engine')
+        self.name = name
         self.policies = {}
         # Check if we have a schema to use
-        if policy_schema is None:
-            policy_schema = self.POLICY_SCHEMA
+        policy_schema = self.POLICY_SCHEMA
         log.debug('Using {0} as the policies schema'.format(policy_schema))
         # Create the policy parser
         self._parser = Parser(schema_file=policy_schema)
         # Dummy way of checking yaml files legitimacy
         self._yaml_regex = re.compile(r'^.*\.(yaml|yml)$')
+        self.event_queue = Queue()
+        self.workers = []
+        log.debug('Creating Job Queue with {0} workers'.format(workers))
+        for index in range(0, workers):
+            worker = self.Dispatcher(self.event_queue, self, index)
+            worker.daemon = True
+            self.workers.append(worker)
+            worker.start()
+
         if action_context is None:
             from .context import ActionContext
             self.action_context = ActionContext
@@ -65,6 +101,11 @@ class PolicyEngine(object):
         else:
             self.condition_context = condition_context
         self.filters = {}
+        self.load_policies()
+
+    def load_policies(self, policies_folder=None, policy_schema=None):
+        if policy_schema is not None:
+            self._parser = Parser(schema_file=policy_schema)
         # Walk the policies folder and parse all policies
         if policies_folder is None:
             policies_folder = self.POLICIES_FOLDER
@@ -90,22 +131,32 @@ class PolicyEngine(object):
                 event_name = policy_data['event']['name']
                 if event_name not in self.policies:
                     self.policies[event_name] = []
-                self.policies[event_name].append(
-                    Policy(
-                        event=policy_data['event'],
-                        name=policy_data['name'],
-                        conditions=policy_data['conditions'],
-                        action=policy_data['action'],
-                        policy_engine=self
-                    ))
+                new_policy = Policy(
+                    event=policy_data['event'],
+                    name=policy_data['name'],
+                    conditions=policy_data['conditions'],
+                    action=policy_data['action'],
+                    policy_engine=self
+                )
+                self.policies[event_name].append(new_policy)
             except Exception as e:
                 log.error('Error while adding policy {0}. Reason {1}'.format(
                     file, e))
-                raise InvalidPolicyException
+                raise InvalidPolicy
 
+    @property
+    def action_ctx(self):
+        return self.action_context
+
+    @action_ctx.setter
     def action_ctx(self, ctx):
         self.action_context = ctx
 
+    @property
+    def condition_ctx(self):
+        return self.condition_context
+
+    @condition_ctx.setter
     def condition_ctx(self, ctx):
         self.condition_context = ctx
 
@@ -115,15 +166,13 @@ class PolicyEngine(object):
             return func
         return decorator
 
-
     def remove_policy(self, policy_name):
         pass
 
     def update_policy(self):
         pass
 
-    def dispatch_event(self, event):
-        log.info("Dispatching event:")
-        policies_to_trigger = self.policies[event["name"]]
-        for policy in policies_to_trigger:
-            policy.trigger(event["data"])
+    def enqueue_event(self, event):
+        log.debug("Enqueing Event: {0}".format(event))
+        event = json.dumps(event)
+        self.event_queue.put(event)

@@ -1,22 +1,18 @@
-from .context import OperatorContext
-from .util import (
-    format_args,
-    format_kwargs,
-    format_arg,
-    format_event_data,
-    format_event_value
-)
+from policy_engine.context import OperatorContext
+from policy_engine import util
+from policy_engine import errors
 
 
 class BaseCondition:
 
-    def validate(self,args):
+    def validate(self, args):
         pass
 
 
 class OperatorCondition(BaseCondition):
 
-    def __init__(self, policy_engine=None, operator_method=None,lhs=None, rhs=None):
+    def __init__(self, policy_engine=None, operator_method=None,
+                 lhs=None, rhs=None):
         self.pe = policy_engine
         self.operator_method = operator_method
         self.lhs = lhs
@@ -24,8 +20,8 @@ class OperatorCondition(BaseCondition):
 
     def validate(self, data):
 
-        lhs = format_event_value(self.lhs, data, self.pe.filters)
-        rhs = format_event_value(self.rhs, data, self.pe.filters)
+        lhs = util.format_event_value(self.lhs, data, self.pe.filters)
+        rhs = util.format_event_value(self.rhs, data, self.pe.filters)
         return self.operator_method(lhs, rhs)
 
 
@@ -34,10 +30,11 @@ class FuncCondition(BaseCondition):
     def __init__(self, policy_engine=None, method=None, args=[]):
         self.pe = policy_engine
         self.method = method
-        self.args = args
+        self.condition_arguments = args
 
     def validate(self, data):
-        final_args = format_event_data(self.args, data, self.pe.filters)
+        final_args = util.format_event_data(self.condition_arguments, data,
+                                            self.pe.filters)
         return self.method(**final_args)
 
 
@@ -46,8 +43,8 @@ class ConditionParser:
     def parse(data=None, policy_engine=None):
 
         if data['type'] == 'op':
-            lhs = format_arg(data['lhs'])
-            rhs = format_arg(data['rhs'])
+            lhs = util.format_arg(data['lhs'])
+            rhs = util.format_arg(data['rhs'])
             operator = data['method']
             cond_name = None
             if operator == '=':
@@ -71,9 +68,10 @@ class ConditionParser:
                     rhs=rhs
                 )
             except AttributeError:
-                raise Exception('Unknown method {0}'.format(cond_name))
+                raise errors.MethodNotFound('Unknown method {0}'
+                                            .format(cond_name))
         elif data['type'] == 'func':
-            args = format_kwargs(data['arguments'])
+            args = util.format_kwargs(data['arguments'])
             method_name = data['method']
             try:
                 method = getattr(policy_engine.condition_context, method_name)
@@ -83,7 +81,8 @@ class ConditionParser:
                     args=args
                 )
             except AttributeError:
-                raise Exception('Could not find condition method {0}'.format(
-                    method_name))
+                raise errors.MethodNotFound(
+                    'Could not find condition method {0}'.format(method_name))
         else:
-            raise Exception('Unknown condition type {0}'.format(data['type']))
+            raise errors.BadCondition('Unknown condition type {0}'
+                                      .format(data['type']))
