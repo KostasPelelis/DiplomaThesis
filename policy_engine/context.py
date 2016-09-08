@@ -25,7 +25,7 @@ class ActionContext(object):
         pass
 
 
-class ConditionContext(object):
+class OperatorContext(object):
 
     def equal_method(lhs, rhs):
         return lhs == rhs
@@ -44,6 +44,9 @@ class ConditionContext(object):
 
     def gle_method(lhs, rhs):
         return lhs >= rhs
+
+
+class ConditionContext(object):
 
     def FourtyCheck(bar=None, baz=None):
         return bar - baz == 40

@@ -1,3 +1,4 @@
+from .context import OperatorContext
 from .util import (
     format_args,
     format_kwargs,
@@ -37,7 +38,7 @@ class FuncCondition(BaseCondition):
 
     def validate(self, data):
         final_args = format_event_data(self.args, data, self.pe.filters)
-        return self.operator_method(**final_args)
+        return self.method(**final_args)
 
 
 class ConditionParser:
@@ -62,7 +63,7 @@ class ConditionParser:
             if operator == '<=':
                 cond_name = 'lte_method'
             try:
-                operator_method = getattr(policy_engine.condition_context, cond_name)
+                operator_method = getattr(OperatorContext, cond_name)
                 return OperatorCondition(
                     policy_engine=policy_engine,
                     operator_method=operator_method,
