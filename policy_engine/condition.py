@@ -68,10 +68,12 @@ class ConditionParser:
                     rhs=rhs
                 )
             except AttributeError:
-                raise errors.MethodNotFound('Unknown method {0}'
+                raise errors.MethodNotFound('Unknown condition method {0}'
                                             .format(cond_name))
         elif data['type'] == 'func':
-            args = util.format_kwargs(data['arguments'])
+            args = data.get('arguments')
+            if args is not None:
+                args = util.format_kwargs(data['arguments'])
             method_name = data['method']
             try:
                 method = getattr(policy_engine.condition_context, method_name)
@@ -82,7 +84,7 @@ class ConditionParser:
                 )
             except AttributeError:
                 raise errors.MethodNotFound(
-                    'Could not find condition method {0}'.format(method_name))
+                    'Unknown condition method {0}'.format(method_name))
         else:
             raise errors.BadCondition('Unknown condition type {0}'
                                       .format(data['type']))

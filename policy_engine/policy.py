@@ -43,7 +43,7 @@ class Policy:
                                           policy_engine=self.policy_engine))
             except Exception as e:
                 raise ConditionParseError(e)
-        self.action = Action(name=action["name"], args=action["arguments"],
+        self.action = Action(name=action["name"], args=action.get("arguments"),
                              policy_engine=self.policy_engine)
 
     """

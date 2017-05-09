@@ -1,6 +1,15 @@
 from policy_engine import PolicyEngine
 import time
+
 p = PolicyEngine('noc-netmode')
+
+
+@p.action
+def lul():
+    print('LUL')
+
+p.run()
+
 p.enqueue_event({
     'name': 'Web Application Attack',
     'event_data': {
@@ -23,4 +32,5 @@ p.enqueue_event({
         }
     }
 })
-time.sleep(5)
+
+time.sleep(2)

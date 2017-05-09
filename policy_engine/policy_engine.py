@@ -36,9 +36,6 @@ log = logging.getLogger('noc-netmode')
 
 class PolicyEngine(object):
 
-    """The Policy Engine Singleton Class
-
-    """
     POLICY_SCHEMA = "./policy_engine/policy_schema.yml"
     POLICIES_FOLDER = "./policy_engine/policies"
 
@@ -101,9 +98,8 @@ class PolicyEngine(object):
         else:
             self.condition_context = condition_context
         self.filters = {}
-        self.load_policies()
 
-    def load_policies(self, policies_folder=None, policy_schema=None):
+    def run(self, policies_folder=None, policy_schema=None):
         if policy_schema is not None:
             self._parser = Parser(schema_file=policy_schema)
         # Walk the policies folder and parse all policies
@@ -140,8 +136,8 @@ class PolicyEngine(object):
                 )
                 self.policies[event_name].append(new_policy)
             except Exception as e:
-                log.error('Error while adding policy {0}. Reason {1}'.format(
-                    file, e))
+                log.exception('Error while adding policy {0}'
+                              .format(file))
                 raise InvalidPolicy
 
     @property
@@ -160,10 +156,17 @@ class PolicyEngine(object):
     def condition_ctx(self, ctx):
         self.condition_context = ctx
 
+    def condition(self, func):
+        setattr(self.condition_context, func.__name__, func)
+        return
+
+    def action(self, func):
+        setattr(self.action_context, func.__name__, func)
+        return
+
     def filter(self, filter_name):
         def decorator(func):
             self.filters[filter_name] = func
-            return func
         return decorator
 
     def remove_policy(self, policy_name):

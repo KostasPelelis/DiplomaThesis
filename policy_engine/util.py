@@ -17,6 +17,8 @@ def format_args(args, filter_methods):
 
 
 def format_kwargs(kwargs):
+    if kwargs is None:
+        return {}
     ret = {}
     for arg_key, arg_value in kwargs.items():
         if isinstance(arg_value, str) and arg_value[0] == '$':
@@ -53,6 +55,8 @@ def format_event_value(arg, event_data, filter_methods):
 
 
 def format_event_data(namespace, event_data, filter_methods):
+    if namespace is None:
+        return {}
     final_args = {}
     for key, val in namespace.items():
         final_args[key] = format_event_value(val, event_data, filter_methods)

@@ -8,7 +8,4 @@ conditions:
       'ip': '$src_ip'
       'subnet': '147.102.0.0/16'
 action:
-  name: 'new_action'
-  arguments:
-    'IP': '$(alert.action)'
-    'proto': '$(proto)'
+  name: 'lul'
